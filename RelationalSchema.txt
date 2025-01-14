@@ -1,0 +1,144 @@
+drop database if exists rentalDB;
+create database rentalDB;
+use rentalDB;
+create table owner (
+    ID char(5) not null primary key,
+    fname varchar(30),
+    lname varchar(30),
+   phone char(10));
+
+create table manager (
+    ID char(5) not null primary key,
+    fname varchar(30),
+    lname varchar(30),
+   phone char(10));
+   
+create table rentalGroup (
+    code integer not null primary key,
+    parking enum('Y', 'N'),
+    access enum('Y', 'N'),
+    laundry enum('Y', 'N'),
+    type enum('House', 'Apartment', 'Room'),
+    beds int,
+    bath int,
+    cost float);
+
+create table renter (
+    ID char(5) not null primary key,
+    fname varchar(30),
+    lname varchar(30),
+   phone varchar(10),
+   rentalGroup int,
+   studentID char(7),
+   gradYear int,
+   program varchar(30),
+   foreign key (rentalGroup) references rentalGroup(code));
+
+
+create table property (
+    code integer not null primary key,
+    street varchar(100),
+    city varchar(50),
+    province char(2),
+    postalCode char(7),
+    apartmentNum int,
+    dateListed date,
+    leasedBy int, 
+    leaseSignDate date,
+    leaseEndDate date,
+    parking enum ("Y", "N"),
+    access enum ("Y", "N"),
+    laundry enum ("ensuite", "shared"),
+    type enum ("House", "Apartment", "Room"),
+    beds int,
+    bath int,
+    cost float,
+    managerID char(5),
+    managedSince date,
+   foreign key (leasedBy) references rentalGroup(code) on delete set null,
+   foreign key(managerID) references manager(id) on delete set null);
+
+create table house(
+    code integer not null primary key,
+    fence enum ("Y", "N"),
+    type enum("detached", "semi"),
+    foreign key (code) references property (code) on delete cascade);
+
+create table apartment(
+    code integer not null primary key,
+    floor int,
+    elevator enum ("Y", "N"),
+    foreign key (code) references property (code) on delete cascade);
+
+create table room(
+    code integer not null primary key,
+    numSharing int,
+    kitchen enum ("Y", "N"),
+    foreign key (code) references property (code) on delete cascade);
+
+create table furnishings(
+    code integer not null,
+    item varchar(100) not null,
+    primary key (code, item),
+    foreign key (code) references room (code) on delete cascade);
+
+create table ownsProperty (
+    ownerID char(5) not null,
+    propertyID int not null,
+    primary key (ownerID, propertyID),
+    foreign key (ownerID) references owner(id) on delete cascade,
+    foreign key (propertyID) references property(code) on delete cascade);
+
+INSERT INTO owner (ID, fname, lname, phone) VALUES
+('O001', 'John', 'Doe', '1234567890'),
+('O002', 'Jane', 'Smith', '0987654321');
+
+INSERT INTO manager (ID, fname, lname, phone) VALUES
+('M001', 'Alice', 'Johnson', '2345678901'),
+('M002', 'Bob', 'Williams', '8765432109');
+
+INSERT INTO rentalGroup (code, parking, access, laundry, type, beds, bath, cost) VALUES
+(1, 'Y', 'N', 'Y', 'House', 3, 2, 1200.00),
+(2, 'N', 'Y', 'N', 'Apartment', 2, 1, 800.00),
+(3, 'Y', 'Y', 'N', 'Room', 1, 1, 400.00);
+
+INSERT INTO renter (ID, fname, lname, phone, rentalGroup, studentID, gradYear, program) VALUES
+('R001', 'Emily', 'Turner', '1231231234', 1, 'S1001', 2024, 'Computer Science'),
+('R002', 'Michael', 'Brown', '3213214321', 2, 'S1002', 2025, 'Business'),
+('R003', 'Jessica', 'Miller', '2312312312', 3, 'S1003', 2023, 'Art'),
+('R004', 'John', 'Snow', '1234567890', 1, 'S1004', 2023, 'History');
+
+INSERT INTO property (code, street, city, province, postalCode, apartmentNum, dateListed, leasedBy, leaseSignDate, leaseEndDate, parking, access, laundry, type, beds, bath, cost, managerID, managedSince) VALUES
+(101, '123 Main St', 'Anytown', 'ON', 'A1A1A1', NULL, '2023-01-01', 1, '2023-01-15', '2024-01-14', 'Y', 'N', 'ensuite', 'House', 3, 2, 1200.00, 'M001', '2023-01-01'),
+(102, '456 Side St', 'Othertown', 'BC', 'B2B2B2', 10, '2023-02-01', 2, '2023-02-15', '2024-02-14', 'N', 'Y', 'shared', 'Apartment', 2, 1, 800.00, 'M002', '2023-02-01'),
+(103, '789 Another Rd', 'Sometown', 'QC', 'C3C3C3', 2, '2023-03-01', NULL, NULL, NULL, 'Y', 'Y', 'shared', 'Room', 1, 1, 400.00, 'M001', '2023-03-01');
+
+INSERT INTO house (code, fence, type) VALUES
+(101, 'Y', 'detached');
+
+INSERT INTO apartment (code, floor, elevator) VALUES
+(102, 2, 'Y');
+
+INSERT INTO room (code, numSharing, kitchen) VALUES
+(103, 2, 'N');
+
+INSERT INTO furnishings (code, item) VALUES
+(103, 'Desk'),
+(103, 'Bed');
+
+INSERT INTO ownsProperty (ownerID, propertyID) VALUES
+('O001', 101),
+('O002', 102),
+('O001', 103);
+
+
+
+
+
+
+
+
+
+
+   
+
